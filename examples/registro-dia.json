@@ -1,0 +1,15 @@
+{
+  "sono_horas": 7.5,
+  "sono_qualidade": 4,
+  "atividade_minutos": 30,
+  "atividade_intensidade": "moderada",
+  "agua_litros": 1.8,
+  "alimentacao": {
+    "frutas_verduras": true,
+    "refeicao_caseira": true,
+    "ultraprocessados": false
+  },
+  "humor": 4,
+  "energia": 3,
+  "tela_lazer_horas": 2
+}

@@ -1,0 +1,13 @@
+"""Contrato de persistência independente do banco de dados."""
+
+from typing import Any, Protocol
+
+
+class Repositorio(Protocol):
+    def obter(self, usuario: str, chave: str) -> dict[str, Any] | None: ...
+
+    def salvar(self, usuario: str, chave: str, dados: dict[str, Any]) -> None: ...
+
+    def listar(self, usuario: str) -> list[tuple[str, dict[str, Any]]]: ...
+
+    def apagar(self, usuario: str) -> None: ...

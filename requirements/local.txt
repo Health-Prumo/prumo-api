@@ -1,0 +1,5 @@
+-r base.txt
+
+# Adaptador HTTP de desenvolvimento; não entra na imagem Lambda.
+Flask==3.1.3
+python-dotenv>=1.0,<2

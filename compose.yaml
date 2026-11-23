@@ -1,0 +1,25 @@
+services:
+  api:
+    build:
+      context: .
+      target: local
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      PRUMO_AMBIENTE: local
+      PRUMO_LLM_MODO: mock
+      PRUMO_HOST_LOCAL: 0.0.0.0
+      PRUMO_PORTA: "8000"
+      PRUMO_USUARIO_LOCAL: usuario-demo
+      PRUMO_ORIGEM_FRONT: http://localhost:5173
+      PRUMO_BANCO_LOCAL: /app/.local/prumo.sqlite3
+    volumes:
+      - dados-prumo:/app/.local
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=2).read()"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+volumes:
+  dados-prumo:

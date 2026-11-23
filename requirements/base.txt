@@ -1,0 +1,3 @@
+# Dependências do handler. SDK AWS entra com os adaptadores reais.
+-c constraints.txt
+marshmallow==4.3.0

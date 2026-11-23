@@ -1,0 +1,10 @@
+# Lista explícita do que pode entrar no contexto: nenhum .env, banco ou cache.
+**
+!Dockerfile
+!requirements/
+!requirements/*.txt
+!main.py
+!local_server.py
+!function_module/
+!function_module/**/
+!function_module/**/*.py

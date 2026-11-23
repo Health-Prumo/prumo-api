@@ -6,7 +6,17 @@ API do **Prumo**, o coach de bem-estar com IA que responde "como estou hoje?" (F
 
 ## Estado atual
 
-Repositório recém-criado, **ainda sem código**. A primeira tarefa é montar o projeto com a stack abaixo.
+Protótipo local implementado: servidor em `localhost:8000` chamando o mesmo
+`main.handler` no formato HTTP API 2.0, SQLite, consentimento, registro diário,
+histórico, exportação/exclusão e card mock. A nota permanece `null` com
+`status_avaliacao=regras_pendentes` até aprovação das fórmulas e dos pesos.
+Os adaptadores AWS, login real, chat, RAG e Scheduler ainda não estão implementados.
+O modo local é bloqueado na Lambda. Instruções de execução e limites no README.
+Organização inspirada no template `function-docker_py_lambda`: `main.py` fino,
+`local_server.py`, rotas em `function_module/api.py`, decorator de erros, logs sem
+dados sensíveis, scripts PowerShell/Bash e configurações VS Code. O comando anterior
+`servidor_local.py` continua funcionando. Docker local é opcional; o alvo `lambda`
+é somente preparação de empacotamento, sem liberar execução AWS.
 
 ## Stack definida
 
