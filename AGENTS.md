@@ -6,14 +6,25 @@ API do **Prumo**, o coach de bem-estar com IA que responde "como estou hoje?" (F
 
 ## Estado atual
 
-Repositório recém-criado, **ainda sem código**. A primeira tarefa é montar o projeto com a stack abaixo.
+Primeira versão funcional (Checkpoint 2): todas as rotas do contrato, motor de regras com testes, Coach em modo mock e com o Bedrock (Nova Micro), DynamoDB e servidor local. Visão geral, rotas, regras e deploy no [README](README.md).
+
+| Onde | O quê |
+|---|---|
+| `src/prumo_api/handler.py` | entrada `prumo_api.handler.handler`, rotas, auth, CORS |
+| `src/prumo_api/regras.py` | motor de regras determinístico (pesos provisórios em `PRUMO_PESOS`) |
+| `src/prumo_api/data/referencias.json` | metas oficiais com fonte e ano; populacional (Vigitel/PNS) ainda pendente |
+| `src/prumo_api/ia.py` | card e Coach; resposta do LLM validada, com volta ao mock se vier fora do formato |
+| `src/prumo_api/repositorio.py` | DynamoDB ou memória/arquivo local |
+| `scripts/build.sh`, `scripts/deploy.sh` | pacote `dist/lambda.zip` e publicação em `prumo-<ambiente>-api` |
+
+Pendente: calibrar pesos e parâmetros provisórios com o grupo, indicadores populacionais no `referencias.json`, tarefa diária (hoje só registra a execução) e trechos curados para o RAG.
 
 ## Stack definida
 
 - **Python** (3.12 local; na AWS, runtime Lambda Python em **arm64**).
 - **Na AWS:** API Gateway **HTTP API** (payload 2.0, autorizador JWT do Cognito) → **AWS Lambda** em subnets privadas → **DynamoDB** e **Amazon Bedrock**. A infraestrutura é do Terraform ([tf-blueprint](https://github.com/Health-Prumo/tf-blueprint) e [tf-environments](https://github.com/Health-Prumo/tf-environments)), não deste repositório.
 - **Local:** a mesma função `handler` deve rodar num servidor local em `http://localhost:8000`, para o front ([prumo-web](https://github.com/Health-Prumo/prumo-web)) desenvolver sem AWS.
-- **Testes** com pytest e lint com ruff, rodando no GitHub Actions a cada push e pull request.
+- **Qualidade:** ruff, mypy, bandit e pytest (`make verificar`), mais gitleaks, rodando no GitHub Actions a cada push e pull request.
 - **Configuração** por variáveis de ambiente, documentadas num `.env.example`.
 
 ## Responsabilidades da API

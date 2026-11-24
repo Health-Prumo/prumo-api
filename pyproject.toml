@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "prumo-api"
+version = "0.1.0"
+description = "API do Prumo: registro do dia, motor de regras e Coach de bem-estar."
+requires-python = ">=3.12"
+# Em produção só usa a biblioteca padrão e o boto3, que já vem no runtime da Lambda.
+dependencies = []
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+prumo_api = ["data/*.json"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "S", "SIM", "RUF"]
+ignore = ["RUF001", "RUF002", "RUF003"]  # textos em português usam acentos e travessões
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101", "S105", "S106"]
+
+[tool.mypy]
+python_version = "3.12"
+mypy_path = "src"
+packages = ["prumo_api"]
+strict = true
+warn_unused_ignores = false
+
+[[tool.mypy.overrides]]
+module = ["boto3", "boto3.*", "botocore.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-q"
+
+[tool.bandit]
+exclude_dirs = ["tests", ".venv"]

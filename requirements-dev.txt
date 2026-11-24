@@ -1,0 +1,7 @@
+# Ferramentas de desenvolvimento (não vão para a Lambda).
+boto3==1.44.11
+boto3-stubs[dynamodb,bedrock-runtime]
+bandit==1.9.4
+mypy==2.4.1
+pytest==9.2.0
+ruff==0.17.6

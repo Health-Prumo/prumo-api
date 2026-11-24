@@ -1,0 +1,51 @@
+{
+  "versao": "2026-11",
+  "observacao": "Metas oficiais usadas pelo motor de regras. Os parâmetros marcados como provisórios ainda serão calibrados pelo grupo (Checkpoint 2).",
+  "metas": {
+    "sono": {
+      "faixa_horas": [7, 9],
+      "fonte": "National Sleep Foundation (Hirshkowitz et al., Sleep Health)",
+      "ano": 2015,
+      "url": "https://doi.org/10.1016/j.sleh.2014.12.010"
+    },
+    "atividade": {
+      "meta_semana_min": 150,
+      "fator_vigorosa": 2,
+      "fator_moderada": 1,
+      "fator_leve": 0,
+      "nota_fator_leve": "A meta da OMS considera atividade moderada ou vigorosa. Atividade leve é registrada e citada, mas não soma na meta.",
+      "fonte": "OMS, Diretrizes para atividade física e comportamento sedentário",
+      "ano": 2020,
+      "url": "https://www.who.int/publications/i/item/9789240015128"
+    },
+    "agua": {
+      "litros_dia": {"feminino": 2.0, "masculino": 2.5, "nao_informar": 2.0},
+      "fonte": "EFSA, Scientific Opinion on Dietary Reference Values for water",
+      "ano": 2010,
+      "url": "https://doi.org/10.2903/j.efsa.2010.1459"
+    },
+    "alimentacao": {
+      "regra_de_ouro": "Prefira alimentos in natura ou minimamente processados e preparações culinárias a alimentos ultraprocessados.",
+      "fonte": "Ministério da Saúde, Guia Alimentar para a População Brasileira, 2ª ed.",
+      "ano": 2014,
+      "url": "https://www.gov.br/saude/pt-br/assuntos/saude-brasil/publicacoes-para-promocao-a-saude/guia_alimentar_populacao_brasileira_2ed.pdf"
+    },
+    "tela": {
+      "indicador_horas_dia": 3,
+      "descricao": "Indicador do Vigitel: 3 horas ou mais por dia de tempo livre em frente a telas.",
+      "fonte": "Ministério da Saúde, Vigitel",
+      "ano": null,
+      "nota_ano": "Edição a confirmar quando os indicadores forem extraídos.",
+      "url": "https://www.gov.br/saude/pt-br/centrais-de-conteudo/publicacoes/svsa/vigitel"
+    }
+  },
+  "parametros_provisorios": {
+    "alimentacao": {"base": 2, "frutas_verduras": 4, "refeicao_caseira": 4, "ultraprocessados": -4},
+    "tela": {"nota_maxima_ate_horas": 1, "nota_zero_em_horas": 6},
+    "sono": {"nota_zero_acima_horas": 18}
+  },
+  "populacional": {
+    "status": "pendente",
+    "observacao": "Indicadores do Vigitel e da PNS 2019 por sexo e faixa etária ainda serão extraídos das bases oficiais. Nenhum número populacional é usado até lá."
+  }
+}
