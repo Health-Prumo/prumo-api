@@ -93,6 +93,11 @@ class ChamadorLLM(Protocol):
     def __call__(self, sistema: str, mensagens: list[dict[str, Any]]) -> str: ...
 
 
+def _minuscula_inicial(texto: str) -> str:
+    """Baixa só a primeira letra, preservando siglas como OMS."""
+    return texto[:1].lower() + texto[1:]
+
+
 def _sem_acentos(texto: str) -> str:
     return "".join(c for c in unicodedata.normalize("NFD", texto.lower()) if unicodedata.category(c) != "Mn")
 
@@ -149,7 +154,7 @@ def analise_mock(registro: dict[str, Any], notas: dict[str, Any]) -> dict[str, A
     frases = [f"Sua energia ficou em {formatar_numero(energia)} de 10."]
     if foco:
         h = foco[0]
-        frases.append(f"{NOMES[h].capitalize()}: {habitos[h]['resumo'].lower()}.")
+        frases.append(f"{NOMES[h].capitalize()}: {_minuscula_inicial(habitos[h]['resumo'])}.")
     else:
         sono = habitos["sono"]["valor"]
         frases.append(f"Você dormiu {formatar_horas(sono)} e manteve os hábitos dentro das metas.")
@@ -173,7 +178,9 @@ def resposta_chat_mock(mensagem: str, resumo: dict[str, Any]) -> str:
     texto = " ".join(partes) + "."
     pior = resumo.get("habito_mais_baixo")
     if pior in SUGESTOES_MOCK:
-        texto += f" O hábito com mais espaço para melhorar é {NOMES[pior]}: {SUGESTOES_MOCK[pior][1].lower()}"
+        texto += (
+            f" O hábito com mais espaço para melhorar é {NOMES[pior]}: {_minuscula_inicial(SUGESTOES_MOCK[pior][1])}"
+        )
     return texto + " " + AVISO
 
 

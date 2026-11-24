@@ -157,3 +157,11 @@ def test_limite_de_tokens() -> None:
 def test_modo_invalido() -> None:
     with pytest.raises(RuntimeError):
         Coach("openai")
+
+
+def test_resumo_mock_preserva_siglas() -> None:
+    from prumo_api.ia import _minuscula_inicial
+
+    assert _minuscula_inicial("Faltam 115 min para a meta semanal da OMS") == (
+        "faltam 115 min para a meta semanal da OMS"
+    )
