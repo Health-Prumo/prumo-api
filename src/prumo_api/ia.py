@@ -113,7 +113,7 @@ def analise_mock(registro: dict[str, Any], notas: dict[str, Any]) -> dict[str, A
     if not foco:
         titulo = "Um dia equilibrado, siga assim."
     elif energia >= 5:
-        titulo = f"Bom dia, com {ARTIGOS[foco[0]]} {NOMES[foco[0]]} pedindo atenção."
+        titulo = f"Um bom dia, com {ARTIGOS[foco[0]]} {NOMES[foco[0]]} pedindo atenção."
     else:
         titulo = "Dia de pegar leve e cuidar de você."
 
