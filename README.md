@@ -36,7 +36,8 @@ make local      # API em http://localhost:8000, IA em modo mock, login local
 No modo local, qualquer `Authorization: Bearer local-<algo>` é aceito, e os dados ficam em `.dados-locais.json` (fora do git).
 
 ```bash
-curl -X PUT localhost:8000/perfil -H 'Authorization: Bearer local-dev' \
+TOKEN=local-dev
+curl -X PUT localhost:8000/perfil -H "Authorization: Bearer $TOKEN" \
   -H 'Content-Type: application/json' -d '{"sexo":"feminino","consentimento_aceito":true}'
 ```
 
