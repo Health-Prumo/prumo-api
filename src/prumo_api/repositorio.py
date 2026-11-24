@@ -9,11 +9,26 @@ import json
 import os
 import threading
 import time
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
 from typing import Any, Protocol
 
-TTL_CHAT_DIAS = 90
+# Conversas do Coach se apagam sozinhas depois de 7 dias: o DynamoDB remove o item pelo TTL
+# (atributo expira_em) e, como essa remoção pode atrasar até uns 2 dias, a leitura já ignora
+# mensagens vencidas.
+TTL_CHAT_DIAS = 7
+
+
+def chat_vigente(item: dict[str, Any], agora: datetime | None = None) -> bool:
+    """True se a mensagem tem menos de TTL_CHAT_DIAS dias."""
+    try:
+        em = datetime.fromisoformat(str(item["em"]))
+    except (KeyError, ValueError):
+        return False
+    if em.tzinfo is None:
+        em = em.replace(tzinfo=UTC)
+    return em > (agora or datetime.now(UTC)) - timedelta(days=TTL_CHAT_DIAS)
 
 
 def _pk(usuario: str) -> str:
@@ -85,7 +100,7 @@ class RepositorioMemoria:
 
     def listar_chat(self, usuario: str, limite: int) -> list[dict[str, Any]]:
         itens = self._itens.get(_pk(usuario), {})
-        chaves = sorted(k for k in itens if k.startswith("CHAT#"))[-limite:]
+        chaves = sorted(k for k in itens if k.startswith("CHAT#") and chat_vigente(itens[k]))[-limite:]
         return [json.loads(json.dumps(itens[k])) for k in chaves]
 
     def exportar(self, usuario: str) -> dict[str, Any]:
@@ -93,7 +108,7 @@ class RepositorioMemoria:
         return {
             "perfil": self.obter_perfil(usuario),
             "dias": [itens[k] for k in sorted(itens) if k.startswith("DIA#")],
-            "chat": [itens[k] for k in sorted(itens) if k.startswith("CHAT#")],
+            "chat": [itens[k] for k in sorted(itens) if k.startswith("CHAT#") and chat_vigente(itens[k])],
         }
 
     def apagar_tudo(self, usuario: str) -> None:
@@ -192,7 +207,7 @@ class RepositorioDynamo:
             ScanIndexForward=False,
             Limit=limite,
         )
-        return [_limpar(i) for i in reversed(itens[:limite])]
+        return [_limpar(i) for i in reversed(itens[:limite]) if chat_vigente(i)]
 
     def _todos(self, usuario: str) -> list[dict[str, Any]]:
         from boto3.dynamodb.conditions import Key
@@ -205,7 +220,7 @@ class RepositorioDynamo:
         return {
             "perfil": perfil,
             "dias": [_limpar(i) for i in itens if str(i["SK"]).startswith("DIA#")],
-            "chat": [_limpar(i) for i in itens if str(i["SK"]).startswith("CHAT#")],
+            "chat": [_limpar(i) for i in itens if str(i["SK"]).startswith("CHAT#") and chat_vigente(i)],
         }
 
     def apagar_tudo(self, usuario: str) -> None:

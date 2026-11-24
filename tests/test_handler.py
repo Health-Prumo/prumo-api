@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import timedelta
+from datetime import UTC, timedelta
 
 import pytest
 
@@ -217,3 +217,21 @@ def test_corpo_invalido(chamar: Chamar) -> None:
 
 def test_tarefa_diaria() -> None:
     assert api.handler({"source": "aws.scheduler"}) == {"ok": True}
+
+
+def test_chat_some_depois_de_7_dias() -> None:
+    from datetime import datetime, timedelta
+
+    from prumo_api.repositorio import RepositorioMemoria, chat_vigente
+
+    agora = datetime(2026, 11, 24, 12, tzinfo=UTC)
+    assert chat_vigente({"em": (agora - timedelta(days=6, hours=23)).isoformat()}, agora)
+    assert not chat_vigente({"em": (agora - timedelta(days=7, minutes=1)).isoformat()}, agora)
+
+    repo = RepositorioMemoria(None)
+    velha = (datetime.now(UTC) - timedelta(days=8)).isoformat()
+    nova = datetime.now(UTC).isoformat()
+    repo.adicionar_chat("u1", "usuario", "antiga", velha)
+    repo.adicionar_chat("u1", "usuario", "recente", nova)
+    assert [m["texto"] for m in repo.listar_chat("u1", 50)] == ["recente"]
+    assert [m["texto"] for m in repo.exportar("u1")["chat"]] == ["recente"]

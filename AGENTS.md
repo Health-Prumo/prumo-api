@@ -52,7 +52,7 @@ Pendente: calibrar pesos e parâmetros provisórios com o grupo, indicadores pop
 |---|---|---|
 | `USUARIO#<id>` | `PERFIL` | dados do perfil e consentimento |
 | `USUARIO#<id>` | `DIA#<aaaa-mm-dd>` | registro do dia e notas calculadas |
-| `USUARIO#<id>` | `CHAT#<timestamp>` | mensagens do Coach, com TTL no atributo `expira_em` (90 dias) |
+| `USUARIO#<id>` | `CHAT#<timestamp>` | mensagens do Coach, com TTL no atributo `expira_em` (7 dias; a leitura já ignora as vencidas) |
 
 O `<id>` é o `sub` do token do Cognito.
 
