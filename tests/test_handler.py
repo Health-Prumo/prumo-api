@@ -114,6 +114,7 @@ def test_historico_usa_media_dos_dias_anteriores(chamar: Chamar) -> None:
         "energia",
         "sono_horas",
         "atividade_minutos",
+        "atividade_meta_min",
         "agua_litros",
         "alimentacao_nota",
         "humor",
@@ -235,3 +236,13 @@ def test_chat_some_depois_de_7_dias() -> None:
     repo.adicionar_chat("u1", "usuario", "recente", nova)
     assert [m["texto"] for m in repo.listar_chat("u1", 50)] == ["recente"]
     assert [m["texto"] for m in repo.exportar("u1")["chat"]] == ["recente"]
+
+
+@pytest.mark.usefixtures("com_perfil")
+def test_historico_traz_minutos_que_contam_para_a_meta(chamar: Chamar) -> None:
+    hoje = api.hoje_local().isoformat()
+    corpo = registro(atividade_minutos=30, atividade_intensidade="vigorosa")
+    assert chamar("PUT", f"/dias/{hoje}", corpo)[0] == 200
+    ponto = chamar("GET", "/historico", query={"dias": "7"})[1]["dias"][-1]
+    assert ponto["atividade_minutos"] == 30
+    assert ponto["atividade_meta_min"] == 60

@@ -196,6 +196,10 @@ def _ponto(dia: dict[str, Any]) -> dict[str, Any]:
         "energia": n["energia"],
         "sono_horas": r["sono_horas"],
         "atividade_minutos": r["atividade_minutos"],
+        # Minutos que contam para a meta da OMS (vigorosa vale 2, leve não conta).
+        "atividade_meta_min": regras.arredondar(
+            regras.minutos_equivalentes(r["atividade_minutos"], r["atividade_intensidade"])
+        ),
         "agua_litros": r["agua_litros"],
         "alimentacao_nota": n["habitos"]["alimentacao"]["nota"],
         "humor": r["humor"],
