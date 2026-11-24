@@ -216,10 +216,10 @@ def rota_historico(evento: dict[str, Any], usuario: str, _p: dict[str, str]) -> 
     return 200, {"dias": [_ponto(d) for d in _dias_recentes(usuario, int(bruto))]}
 
 
-def resumo_historico(dias: list[dict[str, Any]]) -> dict[str, Any]:
+def resumo_historico(dias: list[dict[str, Any]], meta_agua_l: float = 2.0) -> dict[str, Any]:
     """Resumo numérico do histórico para o Coach. Sem nenhum identificador."""
     if not dias:
-        return {"dias_registrados": 0}
+        return {"dias_registrados": 0, "meta_agua_l": meta_agua_l}
     pontos = [_ponto(d) for d in dias]
 
     def media(chave: str) -> float:
@@ -238,6 +238,14 @@ def resumo_historico(dias: list[dict[str, Any]]) -> dict[str, Any]:
         "tela_media_h": media("tela_horas"),
         "notas_medias_0a10": medias_notas,
         "habito_mais_baixo": min(regras.HABITOS, key=lambda h: (medias_notas[h], regras.HABITOS.index(h))),
+        "sono_qualidade_media": regras.arredondar(sum(d["registro"]["sono_qualidade"] for d in dias) / len(dias), 1),
+        "dias_frutas_verduras": sum(1 for d in dias if d["registro"]["alimentacao"]["frutas_verduras"]),
+        "dias_refeicao_caseira": sum(1 for d in dias if d["registro"]["alimentacao"]["refeicao_caseira"]),
+        "dias_ultraprocessados": sum(1 for d in dias if d["registro"]["alimentacao"]["ultraprocessados"]),
+        "atividade_semana_min": dias[-1]["notas"]["habitos"]["atividade"]["semana_min"],
+        "meta_semana_min": dias[-1]["notas"]["habitos"]["atividade"]["meta_semana_min"],
+        "meta_agua_l": meta_agua_l,
+        "pesos": dias[-1]["notas"].get("pesos", {}),
         "ultimos_7_dias": [
             {"dia": i - len(pontos[-7:]), "energia": p["energia"], "sono_h": p["sono_horas"], "tela_h": p["tela_horas"]}
             for i, p in enumerate(pontos[-7:])
@@ -257,7 +265,9 @@ def rota_chat(evento: dict[str, Any], usuario: str, _p: dict[str, str]) -> tuple
         raise ErroHttp(400, "dados_invalidos", "A mensagem precisa ter de 1 a 500 caracteres.")
     mensagem = mensagem.strip()
     conversa = repo().listar_chat(usuario, 6)
-    resumo = resumo_historico(_dias_recentes(usuario, 30))
+    perfil = repo().obter_perfil(usuario) or {}
+    meta_agua_l = regras.meta_agua(str(perfil.get("sexo", "nao_informar")))
+    resumo = resumo_historico(_dias_recentes(usuario, 30), meta_agua_l)
     resposta, fonte = coach().responder(mensagem, resumo, conversa)
     repo().adicionar_chat(usuario, "usuario", mensagem, agora())
     repo().adicionar_chat(usuario, "coach", resposta, agora())

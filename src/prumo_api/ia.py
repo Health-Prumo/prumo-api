@@ -11,9 +11,10 @@ import json
 import logging
 import os
 import re
-import unicodedata
 from typing import Any, Protocol
 
+from prumo_api import coach as coach_regras
+from prumo_api.coach import RESPOSTA_ALERTA, tem_sinal_de_alerta
 from prumo_api.regras import HABITOS, formatar_horas, formatar_numero
 
 log = logging.getLogger(__name__)
@@ -41,32 +42,6 @@ SUGESTOES_MOCK = {
     "humor": ("Faça uma pausa de 5 minutos", "Respire fundo, alongue-se ou tome um pouco de sol."),
     "tela": ("Desligue as telas 1 hora antes de dormir", "Troque esse tempo por leitura, música ou conversa."),
 }
-
-# Termos que indicam um relato que pede avaliação profissional, não conselho de hábito.
-SINAIS_DE_ALERTA = (
-    "dor no peito",
-    "falta de ar",
-    "desmai",
-    "suicid",
-    "me matar",
-    "tirar minha vida",
-    "autolesao",
-    "me machucar",
-    "sangramento",
-    "convuls",
-    "palpitac",
-    "formigamento",
-    "paralisia",
-    "visao turva",
-    "confusao mental",
-    "febre alta",
-)
-
-RESPOSTA_ALERTA = (
-    "O que você descreveu merece atenção de um profissional de saúde. "
-    "Procure um médico ou uma unidade de saúde. Em caso de urgência, ligue 192 (SAMU). "
-    "Se estiver passando por sofrimento emocional, o CVV atende 24 horas pelo 188. " + AVISO
-)
 
 PROMPT_CARD = f"""Você é o Coach Prumo, um coach de bem-estar acolhedor que escreve em português do Brasil.
 Você recebe as notas de um dia JÁ CALCULADAS por regras fixas. Não calcule, não altere e não invente números:
@@ -96,15 +71,6 @@ class ChamadorLLM(Protocol):
 def _minuscula_inicial(texto: str) -> str:
     """Baixa só a primeira letra, preservando siglas como OMS."""
     return texto[:1].lower() + texto[1:]
-
-
-def _sem_acentos(texto: str) -> str:
-    return "".join(c for c in unicodedata.normalize("NFD", texto.lower()) if unicodedata.category(c) != "Mn")
-
-
-def tem_sinal_de_alerta(texto: str) -> bool:
-    normalizado = _sem_acentos(texto)
-    return any(termo in normalizado for termo in SINAIS_DE_ALERTA)
 
 
 # ---------------------------------------------------------------- contexto (só números)
@@ -165,23 +131,8 @@ def analise_mock(registro: dict[str, Any], notas: dict[str, Any]) -> dict[str, A
 
 
 def resposta_chat_mock(mensagem: str, resumo: dict[str, Any]) -> str:
-    if not resumo.get("dias_registrados"):
-        return (
-            "Ainda não tenho registros seus para comparar. Registre alguns dias e eu te mostro como "
-            "seu sono, sua atividade e sua energia estão evoluindo. " + AVISO
-        )
-    quantidade = resumo["dias_registrados"]
-    periodo = "No único dia registrado" if quantidade == 1 else f"Nos {quantidade} dias registrados"
-    partes = [f"{periodo}, sua energia média ficou em {formatar_numero(resumo['energia_media'])} de 10"]
-    if resumo.get("sono_medio_h") is not None:
-        partes.append(f"e você dormiu em média {formatar_horas(resumo['sono_medio_h'])}")
-    texto = " ".join(partes) + "."
-    pior = resumo.get("habito_mais_baixo")
-    if pior in SUGESTOES_MOCK:
-        texto += (
-            f" O hábito com mais espaço para melhorar é {NOMES[pior]}: {_minuscula_inicial(SUGESTOES_MOCK[pior][1])}"
-        )
-    return texto + " " + AVISO
+    """Coach por regras (sem modelo de linguagem). Ver coach.py."""
+    return coach_regras.responder(mensagem, resumo)
 
 
 # ---------------------------------------------------------------- Bedrock
